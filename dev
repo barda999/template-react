@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+# Check if an argument is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <argument>"
+    echo "Arguments: "
+    echo "- up (roll up the docker compose project for development)"
+    echo "- down (shuts down the docker compose project)"
+    echo "- init (initialize node_modules)"
+    echo "- add <package> (add a node package)"
+    exit 1
+fi
+
+# Store the argument
+input=$1
+
+# Run different commands based on the input
+case $input in
+    "up")
+        docker compose up --build -d
+        docker compose logs -f
+        ;;
+    "down")
+        docker compose down
+        ;;
+    "init")
+        docker compose run --rm --entrypoint /bin/sh app -c "yarn install"
+        docker compose down
+        ;;
+    "add")
+        docker compose run --rm --entrypoint /bin/sh app -c "yarn add $2"
+        docker compose down
+        ;;
+     *)
+        echo "Invalid argument: $input"
+        exit 1
+        ;;
+esac
